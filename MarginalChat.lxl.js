@@ -1,4 +1,5 @@
 class LocalGlobalChat {
+    // сделать конфиги через класс JsonConfigFile
     static Options = {
         Chat: {
             Local: "[L] <{pl}> {msg}",
@@ -8,28 +9,29 @@ class LocalGlobalChat {
     }
 
     static PluginMeta = {
-        Name: "LocalGlobalChat",
-        Introduction: "Local and Global chat.",
+        Name: "MarginalChat",
+        Introduction: "Improved Local and Global chat with extra features.",
         Version: [1, 0, 0],
         Other: {
-            Author: "https://github.com/shishkevichd",
-            License: "MIT",
+            Author: [
+                "shishkevichd",
+                "marginal538"
+            ],
+            License: "Apache License",
         },
     };
 
     static Utils = {
         getNearPlayers(player) {
-            let onlinePlayers = mc.getOnlinePlayers()
-
             let nearPlayers = []
 
-            onlinePlayers.forEach(onlinePlayer => {
+            mc.getOnlinePlayers().forEach(pl => {
                 if (
-                    (player.distanceToPos(onlinePlayer.pos) != undefined && Math.round(player.distanceToPos(onlinePlayer.blockPos)) <= LocalGlobalChat.Options.Distance)
+                    (player.distanceToPos(pl.pos) != undefined && Math.round(player.distanceToPos(pl.blockPos)) <= LocalGlobalChat.Options.Distance)
                     &&
-                    player.pos.dimid == onlinePlayer.pos.dimid
+                    player.pos.dimid == pl.pos.dimid
                 ) {
-                    nearPlayers.push(onlinePlayer)
+                    nearPlayers.push(pl)
                 }
             });
 
