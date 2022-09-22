@@ -104,18 +104,22 @@ class LocalGlobalChat {
     }
 
     static Init() {
-        ll.registerPlugin(
-            this.PluginMeta.Name,
-            this.PluginMeta.Introduction,
-            this.PluginMeta.Version,
-            this.PluginMeta.Other
-        );
-
-        this.PreparePermissions();
-
-        this.Main();
-
-        logger.info("Ready to work.")
+        if (ll.requireVersion(2,7,0)) {
+            ll.registerPlugin(
+                this.PluginMeta.Name,
+                this.PluginMeta.Introduction,
+                this.PluginMeta.Version,
+                this.PluginMeta.Other
+            );
+    
+            this.PreparePermissions();
+    
+            this.Main();
+    
+            logger.info("Ready to work.")
+        } else {
+            logger.error("The plugin will not work on this version of LiteLoaderBDS.")
+        }
     }
 
     static Main() {
