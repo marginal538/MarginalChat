@@ -34,7 +34,6 @@ class MarginalChat {
             return nearPlayers
         },
         GenerateMessage(sourcePlayer, msg, isGlobal = true) {
-            /** @type {String} */
             let message;
             let resultMsg;
 
