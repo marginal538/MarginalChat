@@ -1,6 +1,5 @@
 class LocalGlobalChat {
     static PluginConfig = new JsonConfigFile("./plugins/MarginalChat/config.json", JSON.stringify({
-        StartedFirst: true,
         Chat: {
             Global: "[G] <{pl}> {msg}",
             Local: "[L] <{pl}> {msg}"
@@ -19,24 +18,60 @@ class LocalGlobalChat {
     };
 
     static Utils = {
-        getNearPlayers(player) {
+        GetNearPlayers(sourcePlayer) {
             let nearPlayers = []
 
-            mc.getOnlinePlayers().forEach(pl => {
+            mc.getOnlinePlayers().forEach(onlinePlayer => {
                 if (
-                    (player.distanceToPos(pl.pos) != undefined && Math.round(player.distanceToPos(pl.blockPos)) <= LocalGlobalChat.PluginConfig.get("Distance"))
+                    (sourcePlayer.distanceToPos(onlinePlayer.pos) != undefined && Math.round(sourcePlayer.distanceToPos(onlinePlayer.blockPos)) <= LocalGlobalChat.PluginConfig.get("Distance"))
                     &&
-                    player.pos.dimid == pl.pos.dimid
+                    sourcePlayer.pos.dimid == onlinePlayer.pos.dimid
                 ) {
-                    nearPlayers.push(pl)
+                    nearPlayers.push(onlinePlayer)
                 }
             });
 
             return nearPlayers
         },
-        generateMessage(player, msg, isGlobal = true) {
+        GenerateMessage(sourcePlayer, msg, isGlobal = true) {
+            /** @type {String} */
             let message;
             let resultMsg;
+
+            let replaceDict = [
+                {
+                    placeholder: "{pl}",
+                    result: sourcePlayer.realName
+                },
+                {
+                    placeholder: "{msg}",
+                    result: resultMsg
+                },
+                {
+                    placeholder: "{Y}",
+                    result: system.getTimeObj().Y
+                },
+                {
+                    placeholder: "{M}",
+                    result: system.getTimeObj().M
+                },
+                {
+                    placeholder: "{D}",
+                    result: system.getTimeObj().D
+                },
+                {
+                    placeholder: "{h}",
+                    result: system.getTimeObj().h
+                },
+                {
+                    placeholder: "{m}",
+                    result: system.getTimeObj().m
+                },
+                {
+                    placeholder: "{s}",
+                    result: system.getTimeObj().s
+                },
+            ]
 
             if (isGlobal) {
                 message = LocalGlobalChat.PluginConfig.get("Chat").Global
@@ -50,18 +85,15 @@ class LocalGlobalChat {
                 resultMsg = msg
             }
 
-            return message.replace("{pl}", player.realName)
-                          .replace("{msg}", resultMsg)
-                          .replace("{Y}", system.getTimeObj().Y)
-                          .replace("{M}", system.getTimeObj().M)
-                          .replace("{D}", system.getTimeObj().D)
-                          .replace("{h}", system.getTimeObj().h)
-                          .replace("{m}", system.getTimeObj().m)
-                          .replace("{s}", system.getTimeObj().s)
+            replaceDict.forEach(replaceString => {
+                message = message.replace(replaceString.placeholder, replaceString.result)
+            })
+
+            return message
         }
     }
 
-    static registerRoles() {
+    static PreparePermissions() {
         if (!Permission.permissionExists("marginalchat:chat_access")) {
             Permission.registerPermission("marginalchat:chat_access", "MarginalChat: Access to chat")
         }
@@ -79,11 +111,11 @@ class LocalGlobalChat {
             this.PluginMeta.Other
         );
 
-        this.registerRoles();
+        this.PreparePermissions();
 
         this.Main();
 
-        logger.info("Plugin loaded")
+        logger.info("Ready to work.")
     }
 
     static Main() {
@@ -92,16 +124,16 @@ class LocalGlobalChat {
                 if (message.startsWith(LocalGlobalChat.PluginConfig.get("GlobalSymbol"))) {
                     if (Permission.checkPermission(pl.xuid, "marginalchat:global_chat_access")) {
                         mc.getOnlinePlayers().forEach(player => {
-                            player.tell(this.Utils.generateMessage(pl, message))
+                            player.tell(this.Utils.GenerateMessage(pl, message))
                         })
                     } else {
                         pl.tell(`${Format.Red}You do not have permission to write to the global chat.`)
                     }
                 } else {
-                    let nearPlayers = this.Utils.getNearPlayers(pl)
+                    let nearPlayers = this.Utils.GetNearPlayers(pl)
     
                     nearPlayers.forEach(player => {
-                        player.tell(this.Utils.generateMessage(pl, message, false))
+                        player.tell(this.Utils.GenerateMessage(pl, message, false))
                     })
                 }
             } else {
