@@ -1,4 +1,4 @@
-class LocalGlobalChat {
+class MarginalChat {
     static PluginConfig = new JsonConfigFile("./plugins/MarginalChat/config.json", JSON.stringify({
         Chat: {
             Global: "[G] <{pl}> {msg}",
@@ -23,7 +23,7 @@ class LocalGlobalChat {
 
             mc.getOnlinePlayers().forEach(onlinePlayer => {
                 if (
-                    (sourcePlayer.distanceToPos(onlinePlayer.pos) != undefined && Math.round(sourcePlayer.distanceToPos(onlinePlayer.blockPos)) <= LocalGlobalChat.PluginConfig.get("Distance"))
+                    (sourcePlayer.distanceToPos(onlinePlayer.pos) != undefined && Math.round(sourcePlayer.distanceToPos(onlinePlayer.blockPos)) <= MarginalChat.PluginConfig.get("Distance"))
                     &&
                     sourcePlayer.pos.dimid == onlinePlayer.pos.dimid
                 ) {
@@ -74,13 +74,13 @@ class LocalGlobalChat {
             ]
 
             if (isGlobal) {
-                message = LocalGlobalChat.PluginConfig.get("Chat").Global
+                message = MarginalChat.PluginConfig.get("Chat").Global
             } else {
-                message = LocalGlobalChat.PluginConfig.get("Chat").Local
+                message = MarginalChat.PluginConfig.get("Chat").Local
             }
 
             if (isGlobal) {
-                resultMsg = msg.substring(LocalGlobalChat.PluginConfig.get("GlobalSymbol").length) 
+                resultMsg = msg.substring(MarginalChat.PluginConfig.get("GlobalSymbol").length) 
             } else {
                 resultMsg = msg
             }
@@ -125,7 +125,7 @@ class LocalGlobalChat {
     static Main() {
         mc.listen("onChat", (pl, message) => {
             if (Permission.checkPermission(pl.xuid, "marginalchat:chat_access")) {
-                if (message.startsWith(LocalGlobalChat.PluginConfig.get("GlobalSymbol"))) {
+                if (message.startsWith(MarginalChat.PluginConfig.get("GlobalSymbol"))) {
                     if (Permission.checkPermission(pl.xuid, "marginalchat:global_chat_access")) {
                         mc.getOnlinePlayers().forEach(player => {
                             player.tell(this.Utils.GenerateMessage(pl, message))
@@ -149,4 +149,4 @@ class LocalGlobalChat {
     }
 }
 
-LocalGlobalChat.Init();
+MarginalChat.Init();
