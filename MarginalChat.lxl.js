@@ -4,6 +4,10 @@ class MarginalChat {
             Global: "[G] <{pl}> {msg}",
             Local: "[L] <{pl}> {msg}"
         },
+        CensoredWords: {
+            Enabled: false,
+            Words: ["niga", "niggers", "nigga"]
+        },
         Distance: 15,
         GlobalSymbol: "!",
     }))
@@ -36,6 +40,18 @@ class MarginalChat {
         GenerateMessage(sourcePlayer, msg, isGlobal = true) {
             let message;
             let resultMsg;
+
+            if (isGlobal) {
+                message = MarginalChat.PluginConfig.get("Chat").Global
+            } else {
+                message = MarginalChat.PluginConfig.get("Chat").Local
+            }
+
+            if (isGlobal) {
+                resultMsg = msg.substring(MarginalChat.PluginConfig.get("GlobalSymbol").length) 
+            } else {
+                resultMsg = msg
+            }
 
             let replaceDict = [
                 {
@@ -72,23 +88,26 @@ class MarginalChat {
                 },
             ]
 
-            if (isGlobal) {
-                message = MarginalChat.PluginConfig.get("Chat").Global
-            } else {
-                message = MarginalChat.PluginConfig.get("Chat").Local
-            }
-
-            if (isGlobal) {
-                resultMsg = msg.substring(MarginalChat.PluginConfig.get("GlobalSymbol").length) 
-            } else {
-                resultMsg = msg
-            }
-
             replaceDict.forEach(replaceString => {
                 message = message.replace(replaceString.placeholder, replaceString.result)
             })
 
             return message
+        },
+        IfMessageContainIncorrectWords(message) {
+            /** @type {array} */
+            let incorrectWordsArray = MarginalChat.PluginConfig.get("CensoredWords").Words
+            let msg = message;
+
+            let isIncorrectWord;
+            
+            incorrectWordsArray.forEach(word => {
+                if (msg.includes(word)) {
+                    isIncorrectWord = true;
+                }
+            })
+            
+            return isIncorrectWord
         }
     }
 
@@ -99,6 +118,10 @@ class MarginalChat {
 
         if (!Permission.permissionExists("marginalchat:global_chat_access")) {
             Permission.registerPermission("marginalchat:global_chat_access", "MarginalChat: Ability to write in Global chat")
+        }
+
+        if (!Permission.permissionExists("marginalchat:write_incorrect_words") && MarginalChat.PluginConfig.get("CensoredWords").Enabled) {
+            Permission.registerPermission("marginalchat:write_incorrect_words", "MarginalChat: Ability to write incorrect words in chat")
         }
     }
 
@@ -124,20 +147,28 @@ class MarginalChat {
     static Main() {
         mc.listen("onChat", (pl, message) => {
             if (Permission.checkPermission(pl.xuid, "marginalchat:chat_access")) {
-                if (message.startsWith(MarginalChat.PluginConfig.get("GlobalSymbol"))) {
-                    if (Permission.checkPermission(pl.xuid, "marginalchat:global_chat_access")) {
-                        mc.getOnlinePlayers().forEach(player => {
-                            player.tell(this.Utils.GenerateMessage(pl, message))
-                        })
+                if (
+                    !this.Utils.IfMessageContainIncorrectWords(message)
+                ) {
+                    if (message.startsWith(MarginalChat.PluginConfig.get("GlobalSymbol"))) {
+                        if (Permission.checkPermission(pl.xuid, "marginalchat:global_chat_access")) {
+                            mc.getOnlinePlayers().forEach(player => {
+                                player.tell(this.Utils.GenerateMessage(pl, message))
+                            })
+                        } else {
+                            pl.tell(`${Format.Red}You do not have permission to write to the global chat.`)
+                        }
                     } else {
-                        pl.tell(`${Format.Red}You do not have permission to write to the global chat.`)
+                        let nearPlayers = this.Utils.GetNearPlayers(pl)
+        
+                        nearPlayers.forEach(player => {
+                            player.tell(this.Utils.GenerateMessage(pl, message, false))
+                        })
                     }
                 } else {
-                    let nearPlayers = this.Utils.GetNearPlayers(pl)
-    
-                    nearPlayers.forEach(player => {
-                        player.tell(this.Utils.GenerateMessage(pl, message, false))
-                    })
+                    if (Permission.permissionExists("marginalchat:write_incorrect_words") && !Permission.checkPermission(pl.xuid, "marginalchat:write_incorrect_words")) {
+                        pl.tell(`${Format.Red}You do not have permission to write incorrect words to chat.`)
+                    }
                 }
             } else {
                 pl.tell(`${Format.Red}You do not have permission to write to chat.`)
