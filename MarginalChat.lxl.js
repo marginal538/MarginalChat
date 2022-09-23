@@ -95,11 +95,10 @@ class MarginalChat {
             return message
         },
         IfMessageContainIncorrectWords(message) {
-            /** @type {array} */
             let incorrectWordsArray = MarginalChat.PluginConfig.get("CensoredWords").Words
             let msg = message;
 
-            let isIncorrectWord;
+            let isIncorrectWord = false;
             
             incorrectWordsArray.forEach(word => {
                 if (msg.includes(word)) {
