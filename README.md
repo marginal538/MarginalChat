@@ -1,14 +1,26 @@
 # MarginalChat
 
-Локальный и глобальный чат с дополнительным функционалом
+Local and Global chat
 
-[💾 Скачать](https://raw.githubusercontent.com/marginal538/MarginalChat/main/MarginalChat.lxl.js)
+[💾 Download](https://raw.githubusercontent.com/marginal538/MarginalChat/main/MarginalChat.lxl.js)
 
+### Functional
 
-### Функционал
-- [X] Цензура (Обнаружение нецензурной брани)
-- [X] Права
-- [X] Переменные (игрок, время, ОС и т.д)
+- Local chat 
+- Flexible settings
+- Detection of foul language
+- Variables (player, time)
 
-### Права
-Скоро
+### Permissions
+
+* `marginalchat:chat_access`
+    <br/>
+    Access to chat
+
+* `marginalchat:global_chat_access`
+    <br />
+    Ability to write in Global chat
+
+* `marginalchat:write_incorrect_words`
+    <br />
+    MarginalChat: Ability to write incorrect words in chat
