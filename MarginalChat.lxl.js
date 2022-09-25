@@ -14,7 +14,7 @@ class MarginalChat {
 
     static PluginMeta = {
         Name: "MarginalChat",
-        Introduction: "Improved Local and Global chat with extra features.",
+        Introduction: "Local and Global chat for your server.",
         Version: [1, 0, 0],
         Other: {
             License: "Apache License",
@@ -57,6 +57,14 @@ class MarginalChat {
                 {
                     placeholder: "{pl}",
                     result: sourcePlayer.realName
+                },
+                {
+                    placeholder: "{plping}",
+                    result: sourcePlayer.getDevice().avgPing
+                },
+                {
+                    placeholder: "{plos}",
+                    result: sourcePlayer.getDevice().os
                 },
                 {
                     placeholder: "{msg}",
