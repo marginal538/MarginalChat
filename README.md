@@ -1,3 +1,5 @@
+![Logo](logo.png)
+
 # MarginalChat
 
 Local and Global chat
